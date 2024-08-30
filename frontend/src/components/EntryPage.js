@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/login.css';
-import { signUp, signIn, signOut, resetPassword, fetchAuthSession } from 'aws-amplify/auth';
+import { signUp, signIn, signOut, resetPassword, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 
 
 function EntryPage() {
@@ -52,9 +52,9 @@ function EntryPage() {
         // console.log("user id", userId);
         // console.log("sign-in details", signInDetails);
         const session = await fetchAuthSession();
-        //console.log("id token", session.tokens.idToken)
+        console.log("id token", session.tokens.idToken)
         //console.log("access token", session.tokens.accessToken)
-        const token = session.tokens.idToken.sub;
+        const token = session.tokens.idToken.payload.sub;
         
         const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
         // Send token to backend
@@ -65,7 +65,8 @@ function EntryPage() {
                 'Authorization': `Bearer ${token}`, // Send token in Authorization header
             },
             body: JSON.stringify({
-                email: formData.username,
+                email: session.tokens.idToken.payload.email,
+                nickname: session.tokens.idToken.payload.nickname,
             }),
         });
 

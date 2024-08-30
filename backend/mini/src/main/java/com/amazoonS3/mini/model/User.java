@@ -7,10 +7,28 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L; // 권장 사항
 
     private String username;
+    private String nickname;
     private String email;
     private String password;
+    private String idtoken;
 
     // Getters and Setters
+
+    public String getIdtoken() {
+        return this.idtoken;
+    }
+
+    public void setIdtoken(String idtoken) {
+        this.idtoken = idtoken;
+    }
+    
+    public String getNickname() {
+        return this.nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
 
     public String getUsername() {
         return this.username;

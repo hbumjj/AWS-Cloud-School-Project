@@ -18,6 +18,7 @@ import { I18nProvider } from '@cloudscape-design/components/i18n';
 import messages from '@cloudscape-design/components/i18n/messages/all.en';
 import { useNavigate } from 'react-router-dom';
 import BoardContainer from './BoardContainer';
+import { getCurrentUser } from 'aws-amplify/auth';
 
 import { fetchBoardItems } from '../api/board';
 const LOCALE = 'en';
@@ -40,14 +41,9 @@ function AppLayoutPreview() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/check-auth`, { withCredentials: true });
-        console.log('Authentication response:', response);
-        if (response.data.authenticated) {
-          setUser(response.data.nickname);
-          console.log('User set:', response.data.nickname);
-        } else {
-          navigate('/login');
-        }
+        const { email, nickname, signInDetails } = await getCurrentUser();
+        setUser(nickname);
+        navigate('/home');
       } catch (error) {
         console.error('Authentication check failed:', error);
         navigate('/login');

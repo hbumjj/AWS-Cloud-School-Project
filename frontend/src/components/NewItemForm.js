@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Form, FormField, Input } from '@cloudscape-design/components';
 
 function NewItemForm({ onSubmit, onCancel, user }) {
-  console.log('NewItemForm received user:', user);
+  console.log('NewItemForm :', user);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
 
