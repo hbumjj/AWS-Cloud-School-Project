@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "crypto-js": "^4.1.1",
+    "aws-amplify": "^6.0.0",
+    "@aws-amplify/ui-react": "^6.0.0",
     "@cloudscape-design/board-components": "^3.0.72",
     "@cloudscape-design/components": "^3.0.706",
     "@testing-library/jest-dom": "^5.17.0",

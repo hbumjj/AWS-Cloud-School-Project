@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: was
-        image: sojh5741aws/mini:backend-https-v25
+        image: hymoo/amazoon-mini:back-v1 #sojh5741aws/mini:backend-https-v25
         ports:
         - containerPort: 8080
         imagePullPolicy: Always

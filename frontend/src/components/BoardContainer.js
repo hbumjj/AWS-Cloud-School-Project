@@ -237,7 +237,7 @@ renderItem={(item) => (
             {item.dislikes > 0 ? item.dislikes : ''}
           </Button>
         </div>
-        {user === item.username && (
+        {user === item.nickname && (
           <div>
             <Button 
               onClick={() => {

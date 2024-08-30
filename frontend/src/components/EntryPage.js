@@ -1,10 +1,12 @@
+// src/pages/EntryPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/login.css'; 
+import { signUp, signIn, resetPassword } from 'aws-amplify/auth';
+import '../styles/login.css';
 
 function EntryPage() {
   const [currentView, setCurrentView] = useState("logIn");
-  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ nickname: '', email: '', password: '' }); // Changed 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -18,43 +20,43 @@ function EntryPage() {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const apiUrl = process.env.REACT_APP_API_BASE_URL;
-    const url = currentView === "signUp" ? `${apiUrl}/api/register` : 
-                currentView === "logIn" ? `${apiUrl}/api/login` : 
-                `${apiUrl}/api/reset-password`;
+    setLoading(true);
 
-    const formBody = new URLSearchParams(formData).toString();
-
-    const options = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: formBody,
-      credentials: 'include'  // 이 부분 추가
-    };
-
-    fetch(url, options)
-      .then(response => {
-        if (response.ok) {
-          if (currentView === "logIn") {
-            navigate('/home'); // 로그인 성공 시 /home으로 이동
-          } else {
-            alert('Operation successful');
-            if (currentView === "signUp") changeView("logIn");
+    try {
+      if (currentView === "signUp") {
+        await signUp({
+          username: formData.email,
+          password: formData.password,
+          options: {
+            userAttributes: {
+              email: formData.email,
+              nickname: formData.nickname,
+            },
           }
-        } else {
-          alert('Operation failed');
-        }
-      })
-      .catch(error => {
-        setError(`Operation failed: ${error.message}`);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+        });
+        alert('Sign up successful! Please confirm your email.');
+        // On successful sign-up, redirect to confirmation page
+        navigate('/confirm-sign-up');
+      } else if (currentView === "logIn") {
+        await signIn({
+          username: formData.username,
+          password: formData.password,
+        });
+        navigate('/home');
+      } else if (currentView === "PWReset") {
+        await resetPassword(formData.email);
+        alert('Password reset link sent.');
+        changeView("logIn");
+      }
+    } catch (error) {
+      setError(`Operation failed: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   const renderView = () => {
     switch (currentView) {
@@ -66,8 +68,8 @@ function EntryPage() {
               <legend>Create Account</legend>
               <ul>
                 <li>
-                  <label htmlFor="username">Username:</label>
-                  <input type="text" id="username" value={formData.username} onChange={handleInputChange} required />
+                  <label htmlFor="nickname">nickname:</label>
+                  <input type="text" id="nickname" value={formData.nickname} onChange={handleInputChange} required />
                 </li>
                 <li>
                   <label htmlFor="email">Email:</label>
@@ -94,7 +96,7 @@ function EntryPage() {
               <legend>Log In</legend>
               <ul>
                 <li>
-                  <label htmlFor="username">Username:</label>
+                  <label htmlFor="username">email:</label> 
                   <input type="text" id="username" value={formData.username} onChange={handleInputChange} required />
                 </li>
                 <li>

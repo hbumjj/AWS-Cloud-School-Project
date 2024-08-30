@@ -1,41 +1,53 @@
 package com.amazoonS3.mini.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.amazoonS3.mini.service.JwtServiceCustom;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.amazoonS3.mini.model.User;
-
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 
 @RestController
 public class AuthController {
 
+    @Autowired
+    private JwtServiceCustom jwtService; // Inject JwtService for token operations
+
     @GetMapping("/api/check-authentication")
     public ResponseEntity<Void> checkAuthentication(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (session != null && session.getAttribute("user") != null) {
-            return ResponseEntity.ok().build(); // User is authenticated
+        String token = extractToken(request);
+
+        if (token != null && jwtService.validateToken(token)) {
+            return ResponseEntity.ok().build(); // Token is valid
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // User is not authenticated
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Token is invalid
     }
 
-    @GetMapping("/api/check-auth")
-    public ResponseEntity<Map<String, Object>> checkAuth(HttpServletRequest request) {
-        HttpSession session = request.getSession(false); // Do not create a new session
-        Map<String, Object> response = new HashMap<>();
-        if (session != null && session.getAttribute("user") != null) {
-            User user = (User) session.getAttribute("user");
-            response.put("authenticated", true);
-            response.put("username", user.getUsername());
-        } else {
-            response.put("authenticated", false);
+    private String extractToken(HttpServletRequest request) {
+        // Extract token from cookie or authorization header
+        String token = null;
+
+        // Check cookies
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("AUTH_TOKEN".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
         }
-        return ResponseEntity.ok(response);
+
+        // Check Authorization header
+        if (token == null) {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+            }
+        }
+
+        return token;
     }
 }

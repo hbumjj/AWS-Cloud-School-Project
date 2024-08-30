@@ -14,7 +14,8 @@ RUN npm install
 COPY . .
 
 # 환경 변수 설정
-ENV REACT_APP_API_BASE_URL=${API_BASE_URL}
+ENV REACT_APP_API_BASE_URL=http://ec2-13-124-112-27.ap-northeast-2.compute.amazonaws.com
+#ENV REACT_APP_API_BASE_URL=${API_BASE_URL}
 
 # Build the application
 RUN npm run build
@@ -36,3 +37,4 @@ EXPOSE 80
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
+

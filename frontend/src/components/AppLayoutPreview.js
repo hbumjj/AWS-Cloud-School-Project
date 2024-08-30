@@ -43,8 +43,8 @@ function AppLayoutPreview() {
         const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/check-auth`, { withCredentials: true });
         console.log('Authentication response:', response);
         if (response.data.authenticated) {
-          setUser(response.data.username);
-          console.log('User set:', response.data.username);
+          setUser(response.data.nickname);
+          console.log('User set:', response.data.nickname);
         } else {
           navigate('/login');
         }

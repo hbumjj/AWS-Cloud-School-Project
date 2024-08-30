@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: sojh5741aws/mini:frontend-v27
+        image: hymoo/amazoon-mini:front-v1 #sojh5741aws/mini:frontend-v27
         ports:
         - containerPort: 80
         imagePullPolicy: Always

@@ -1,6 +1,8 @@
 package com.amazoonS3.mini.config;
 
 import com.amazoonS3.mini.interceptor.AuthInterceptor;
+import com.amazoonS3.mini.service.CognitoService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,11 +22,18 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${useSecureCookie}")
     private String useSecureCookie;
 
-    @Autowired
-    private AuthInterceptor authInterceptor;
+    // @Autowired
+    // private AuthInterceptor authInterceptor;
 
+
+    private final CognitoService cognitoService;
+
+    public WebConfig(CognitoService cognitoService) {
+        this.cognitoService = cognitoService;
+    }
+    
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(authInterceptor);
+        registry.addInterceptor(new AuthInterceptor(cognitoService));
     }
 }
