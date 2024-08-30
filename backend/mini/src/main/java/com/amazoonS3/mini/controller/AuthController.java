@@ -1,53 +1,54 @@
 package com.amazoonS3.mini.controller;
 
-import com.amazoonS3.mini.service.JwtServiceCustom;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.amazoonS3.mini.model.User;
+
+import java.util.ArrayList;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 public class AuthController {
 
-    @Autowired
-    private JwtServiceCustom jwtService; // Inject JwtService for token operations
+    @PostMapping("/api/check-authentication")
+    public ResponseEntity<String> storeToken(
+            @RequestHeader("Authorization") String token,
+            @RequestBody User user) {
+        try {
+            String jwtToken = token.replace("Bearer ", "");
 
-    @GetMapping("/api/check-authentication")
-    public ResponseEntity<Void> checkAuthentication(HttpServletRequest request) {
-        String token = extractToken(request);
+            if (verifyToken(jwtToken)) {
+                // Store the token in the SecurityContext
+                SecurityContextHolder.getContext().setAuthentication(
+                        new UsernamePasswordAuthenticationToken(user.getEmail(), null, new ArrayList<>())
+                );
+                // Optionally add the token to the context if needed
+                ((AbstractAuthenticationToken) SecurityContextHolder.getContext()).setDetails(jwtToken);
 
-        if (token != null && jwtService.validateToken(token)) {
-            return ResponseEntity.ok().build(); // Token is valid
+                // 나중에 꺼내쓸때
+                // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                // String jwtToken = (String) SecurityContextHolder.getContext().getDetails();
+
+                return ResponseEntity.ok("Token stored successfully in SecurityContext");
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error storing token");
         }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Token is invalid
     }
 
-    private String extractToken(HttpServletRequest request) {
-        // Extract token from cookie or authorization header
-        String token = null;
 
-        // Check cookies
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("AUTH_TOKEN".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
-                }
-            }
-        }
-
-        // Check Authorization header
-        if (token == null) {
-            String authHeader = request.getHeader("Authorization");
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                token = authHeader.substring(7);
-            }
-        }
-
-        return token;
+    private boolean verifyToken(String jwtToken) {
+        // Implement token verification logic here
+        // You can use AWS SDK or any JWT library to verify the token
+        return true; // Replace with actual verification logic
     }
 }

@@ -22,18 +22,18 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${useSecureCookie}")
     private String useSecureCookie;
 
-    // @Autowired
-    // private AuthInterceptor authInterceptor;
+    @Autowired
+    private AuthInterceptor authInterceptor;
 
 
-    private final CognitoService cognitoService;
+    // private final CognitoService cognitoService;
 
-    public WebConfig(CognitoService cognitoService) {
-        this.cognitoService = cognitoService;
-    }
+    // public WebConfig(CognitoService cognitoService) {
+    //     this.cognitoService = cognitoService;
+    // }
     
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AuthInterceptor(cognitoService));
+        registry.addInterceptor(new AuthInterceptor());
     }
 }

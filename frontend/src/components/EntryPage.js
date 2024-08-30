@@ -1,8 +1,9 @@
 // src/pages/EntryPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signUp, signIn, resetPassword } from 'aws-amplify/auth';
 import '../styles/login.css';
+import { signUp, signIn, signOut, resetPassword, fetchAuthSession } from 'aws-amplify/auth';
+
 
 function EntryPage() {
   const [currentView, setCurrentView] = useState("logIn");
@@ -40,12 +41,41 @@ function EntryPage() {
         // On successful sign-up, redirect to confirmation page
         navigate('/confirm-sign-up');
       } else if (currentView === "logIn") {
-        await signIn({
+        await signOut();
+        const user = await signIn({
           username: formData.username,
           password: formData.password,
         });
-        navigate('/home');
-      } else if (currentView === "PWReset") {
+        console.log(user);
+        
+        // console.log("username", username);
+        // console.log("user id", userId);
+        // console.log("sign-in details", signInDetails);
+        const session = await fetchAuthSession();
+        //console.log("id token", session.tokens.idToken)
+        //console.log("access token", session.tokens.accessToken)
+        const token = session.tokens.idToken.sub;
+        
+        const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+        // Send token to backend
+        const response = await fetch(API_BASE_URL+'/api/check-authentication', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`, // Send token in Authorization header
+            },
+            body: JSON.stringify({
+                email: formData.username,
+            }),
+        });
+
+        if (response.ok) {
+            console.log('Token stored successfully');
+            navigate('/home');
+        } else {
+            throw new Error('Failed to store token');
+        }
+    } else if (currentView === "PWReset") {
         await resetPassword(formData.email);
         alert('Password reset link sent.');
         changeView("logIn");
@@ -56,7 +86,6 @@ function EntryPage() {
       setLoading(false);
     }
   };
-
 
   const renderView = () => {
     switch (currentView) {

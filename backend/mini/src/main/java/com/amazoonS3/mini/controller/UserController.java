@@ -33,24 +33,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
-    private final AWSCognitoIdentityProvider cognitoClient = AWSCognitoIdentityProviderClientBuilder.defaultClient();
-
-    @PostMapping("/login")
-    public ResponseEntity<TokenResponse> loginUser(@RequestBody LoginDto loginDto) {
-        InitiateAuthRequest authRequest = new InitiateAuthRequest()
-            .withAuthFlow("USER_PASSWORD_AUTH")
-            .withClientId("your-client-id") // Cognito User Pool 클라이언트 ID
-            .addAuthParametersEntry("USERNAME", loginDto.getUsername())
-            .addAuthParametersEntry("PASSWORD", loginDto.getPassword());
-
-        InitiateAuthResult authResult = cognitoClient.initiateAuth(authRequest);
-
-        String idToken = authResult.getAuthenticationResult().getIdToken();
-        String accessToken = authResult.getAuthenticationResult().getAccessToken();
-
-        return ResponseEntity.ok(new TokenResponse(idToken, accessToken));
-    }
     @PostMapping("/logout")
     public ResponseEntity<?> logoutUser(HttpServletRequest request, HttpServletResponse response) {
         // 브라우저 캐시 방지 헤더 설정
