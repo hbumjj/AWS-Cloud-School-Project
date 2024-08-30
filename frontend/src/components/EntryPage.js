@@ -72,6 +72,10 @@ function EntryPage() {
 
         if (response.ok) {
             console.log('Token stored successfully');
+            // Store data after successful login
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('userEmail', session.tokens.idToken.payload.email);
+            localStorage.setItem('userNickname', session.tokens.idToken.payload.nickname); 
             navigate('/home');
         } else {
             throw new Error('Failed to store token');

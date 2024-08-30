@@ -18,7 +18,6 @@ import { I18nProvider } from '@cloudscape-design/components/i18n';
 import messages from '@cloudscape-design/components/i18n/messages/all.en';
 import { useNavigate } from 'react-router-dom';
 import BoardContainer from './BoardContainer';
-import { getCurrentUser } from 'aws-amplify/auth';
 
 import { fetchBoardItems } from '../api/board';
 const LOCALE = 'en';
@@ -41,7 +40,9 @@ function AppLayoutPreview() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { email, nickname, signInDetails } = await getCurrentUser();
+        // const token = localStorage.getItem('authToken');
+        // const email = localStorage.getItem('userEmail');
+        const nickname = localStorage.getItem('userNickname');
         setUser(nickname);
         navigate('/home');
       } catch (error) {
